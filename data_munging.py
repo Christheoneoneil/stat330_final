@@ -5,7 +5,6 @@ Script that does preliminary data cleaning and analysis
 
 import sqlite3
 import pandas as pd
-import matplotlib.pyplot as plt
 
 
 def read_data(query: str, database: str) -> pd.DataFrame:
