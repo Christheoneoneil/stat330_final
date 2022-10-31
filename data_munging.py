@@ -9,6 +9,7 @@ import os
 from functools import reduce
 
 
+
 def read_data(query: str, database: str, csv_name) -> pd.DataFrame:
 
     list_dir = os.listdir()
@@ -32,16 +33,24 @@ def merge_data(df_list: list, id_var_dict)-> pd.DataFrame:
     return merged_df
 
 
-def explore_data(data: pd.DataFrame):
+def data_engineering(data: pd.DataFrame):
+    from sklearn.preprocessing import LabelEncoder
     data_copy = data.copy()
     na_vals = data_copy.isna().sum().sort_values(ascending=False) / len(data_copy) * 100
     print(na_vals)
     data_copy.dropna(axis=0, how="any", inplace=True)
-    print(data_copy)
+
+    desc_df = data_copy.describe()
+    print(desc_df.iloc[list(desc_df.index).index("min")])
+    print(desc_df.iloc[list(desc_df.index).index("max")])
+
+    str_cols = list(data_copy.select_dtypes(include=object).columns)
+    data_copy[str_cols] = data_copy[str_cols].apply(LabelEncoder().fit_transform)
+    data_copy.to_csv("final_frame.csv")
 
 
 choice_data = read_data("SELECT * FROM CHOICE WHERE YEAR==2010", "TFS_CHOICE_2008_2010.db", "choice.csv")
 demo_data = read_data("SELECT * FROM DEMOGRAPHICS WHERE Surveyyear == 2010", "DEMOGRAPHICS.db", "demo.csv")
 merged_data = merge_data([choice_data, demo_data], id_var_dict={str(choice_data):"SUBJID", str(demo_data):"SubjectI.D."})
-explore_data(merged_data)
+data_engineering(merged_data)
 
