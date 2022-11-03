@@ -79,6 +79,12 @@ def data_engineering(data: pd.DataFrame, desired_stats: list, unwanted_cols: lis
 
 choice_data = read_data("SELECT * FROM CHOICE WHERE YEAR==2010", "TFS_CHOICE_2008_2010.db", "choice.csv")
 demo_data = read_data("SELECT * FROM DEMOGRAPHICS WHERE Surveyyear == 2010", "DEMOGRAPHICS.db", "demo.csv")
+
 merged_data = merge_data([choice_data, demo_data], id_var_dict={str(choice_data): "SUBJID",
                                                                 str(demo_data): "SubjectI.D."})
-data_engineering(merged_data, ["min", "max", "std"], ["NORMSTAT", "STUDSTAT", "YEAR", "Surveyyear", "Studentshomezip"])
+
+unneeded_cols = ["NORMSTAT", "STUDSTAT", "YEAR", "Surveyyear", "Studentshomezip", "AmericanIndian/AlaskaNative",
+                "NativeHawaiian/PacificIslander", "AfricanAmerican/Black", "MexicanAmerican/Chicano/o/x", "PuertoRican",
+                 "OtherLatino/o/x", "White/Caucasian", "Other", "Asian", "RecodedCollegeI.D."]
+
+data_engineering(merged_data, ["min", "max", "std"], unneeded_cols)
