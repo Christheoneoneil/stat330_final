@@ -88,6 +88,6 @@ unneeded_cols = ["NORMSTAT", "STUDSTAT", "YEAR", "Surveyyear", "Studentshomezip"
                 "NativeHawaiian/PacificIslander", "AfricanAmerican/Black", "MexicanAmerican/Chicano/o/x", "PuertoRican",
                  "OtherLatino/o/x", "White/Caucasian", "Other", "Asian", "RecodedCollegeI.D.", "is_real_zip",
                  "SurveyType", "Areyouenrolled(orenrolling)asa:", "Seximputed", "InstitutionControl", "InstitutionType",
-                 ]
+                 "SUBJID"]
 
 data_engineering(merged_data, ["min", "max", "std"], unneeded_cols)
