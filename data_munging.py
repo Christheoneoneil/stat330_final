@@ -60,6 +60,7 @@ def data_engineering(data: pd.DataFrame, desired_stats: list, unwanted_cols: lis
 
     from sklearn.preprocessing import LabelEncoder
     data_copy = data.copy()
+    print(list(data_copy.columns))
     na_vals = data_copy.isna().sum().sort_values(ascending=False) / len(data_copy) * 100
     print(na_vals)
 
@@ -85,6 +86,8 @@ merged_data = merge_data([choice_data, demo_data], id_var_dict={str(choice_data)
 
 unneeded_cols = ["NORMSTAT", "STUDSTAT", "YEAR", "Surveyyear", "Studentshomezip", "AmericanIndian/AlaskaNative",
                 "NativeHawaiian/PacificIslander", "AfricanAmerican/Black", "MexicanAmerican/Chicano/o/x", "PuertoRican",
-                 "OtherLatino/o/x", "White/Caucasian", "Other", "Asian", "RecodedCollegeI.D.", "is_real_zip"]
+                 "OtherLatino/o/x", "White/Caucasian", "Other", "Asian", "RecodedCollegeI.D.", "is_real_zip",
+                 "SurveyType", "Areyouenrolled(orenrolling)asa:", "Seximputed", "InstitutionControl", "InstitutionType",
+                 ]
 
 data_engineering(merged_data, ["min", "max", "std"], unneeded_cols)
