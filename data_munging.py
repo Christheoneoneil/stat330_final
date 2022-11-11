@@ -27,14 +27,14 @@ def read_data(query: str, database: str, csv_name) -> pd.DataFrame:
         df = pd.read_sql_query(query, conn)
         df.dropna(axis=1, how="all", inplace=True)
 
-        df.to_csv(csv_name)
+        df.to_csv(csv_name, index=False)
         return df
 
     df = pd.read_csv(csv_name)
     return df
 
 
-def merge_data(df_list: list, id_var_dict) -> pd.DataFrame:
+def merge_data(df_list: list, merge_var) -> pd.DataFrame:
     """
     merge data merges the given data frames into one to
     prepare for data engineering.
@@ -42,8 +42,8 @@ def merge_data(df_list: list, id_var_dict) -> pd.DataFrame:
     :param id_var_dict: dictionary to keep track of columns to merge
     :return: merged pandas data frame
     """
-    merged_df = reduce(lambda x, y: pd.merge(x, y, left_on=id_var_dict[str(x)], right_on=id_var_dict[str(y)]), df_list)
-    merged_df.drop(columns=["Unnamed: 0_x", "Unnamed: 0_y"] + list(id_var_dict.values())[1:], inplace=True)
+    merged_df = reduce(lambda x, y: pd.merge(x, y, on=merge_var, how='outer'), df_list)
+
     return merged_df
 
 
@@ -78,16 +78,18 @@ def data_engineering(data: pd.DataFrame, desired_stats: list, unwanted_cols: lis
     data_copy.to_csv("final_frame.csv")
 
 
+merging_var = "SubjectI.D."
 choice_data = read_data("SELECT * FROM CHOICE WHERE YEAR==2010", "TFS_CHOICE_2008_2010.db", "choice.csv")
+choice_data.rename(columns={"SUBJID": merging_var}, inplace=True)
 demo_data = read_data("SELECT * FROM DEMOGRAPHICS WHERE Surveyyear == 2010", "DEMOGRAPHICS.db", "demo.csv")
+high_data = read_data("SELECT [SubjectI.D.], SATVerbal, SATMath, SATWriting ACTComposite FROM 'HIGH SCHOOL' WHERE Surveyyear == 2010",
+                      "HIGH SCHOOL.db", "high_school.csv")
 
-merged_data = merge_data([choice_data, demo_data], id_var_dict={str(choice_data): "SUBJID",
-                                                                str(demo_data): "SubjectI.D."})
-
+merged_data = merge_data([choice_data, demo_data, high_data], merging_var)
+print(merged_data)
 unneeded_cols = ["NORMSTAT", "STUDSTAT", "YEAR", "Surveyyear", "Studentshomezip", "AmericanIndian/AlaskaNative",
-                "NativeHawaiian/PacificIslander", "AfricanAmerican/Black", "MexicanAmerican/Chicano/o/x", "PuertoRican",
-                 "OtherLatino/o/x", "White/Caucasian", "Other", "Asian", "RecodedCollegeI.D.", "is_real_zip",
-                 "SurveyType", "Areyouenrolled(orenrolling)asa:", "Seximputed", "InstitutionControl", "InstitutionType",
-                 "SUBJID"]
+                 "NativeHawaiian/PacificIslander", "AfricanAmerican/Black", "MexicanAmerican/Chicano/o/x", "PuertoRican",
+                  "OtherLatino/o/x", "White/Caucasian", "Other", "Asian", "RecodedCollegeI.D.", "is_real_zip",
+                  "SurveyType", "Areyouenrolled(orenrolling)asa:", "Seximputed", "InstitutionControl", "InstitutionType"]
 
 data_engineering(merged_data, ["min", "max", "std"], unneeded_cols)
