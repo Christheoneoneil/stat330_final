@@ -75,9 +75,9 @@ def data_engineering(data: pd.DataFrame, desired_stats: list, unwanted_cols: lis
     str_cols = list(data_copy.select_dtypes(include=object).columns)
     data_copy[str_cols] = data_copy[str_cols].apply(LabelEncoder().fit_transform)
 
-
-    data_copy.to_csv("final_frame.csv")
+    data_copy.to_csv("final_frame_imputed.csv")
     print(data_copy)
+
 
 merging_var = "SubjectI.D."
 choice_data = read_data("SELECT * FROM CHOICE WHERE YEAR==2010", "TFS_CHOICE_2008_2010.db", "choice.csv")
@@ -91,6 +91,7 @@ merged_data = merge_data([choice_data, demo_data, high_data], merging_var)
 unneeded_cols = ["NORMSTAT", "STUDSTAT", "YEAR", "Surveyyear", "Studentshomezip", "AmericanIndian/AlaskaNative",
                  "NativeHawaiian/PacificIslander", "AfricanAmerican/Black", "MexicanAmerican/Chicano/o/x", "PuertoRican",
                   "OtherLatino/o/x", "White/Caucasian", "Other", "Asian", "RecodedCollegeI.D.",
-                  "SurveyType", "Areyouenrolled(orenrolling)asa:", "Seximputed", "InstitutionControl", "InstitutionType"]
+                  "SurveyType", "Areyouenrolled(orenrolling)asa:", "Seximputed", "InstitutionControl", "InstitutionType",
+                 "SubjectI.D."]
 
 data_engineering(merged_data, ["min", "max", "std"], unneeded_cols)
