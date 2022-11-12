@@ -63,8 +63,8 @@ def data_engineering(data: pd.DataFrame, desired_stats: list, unwanted_cols: lis
     data_copy = data.copy()
     na_vals = data_copy.isna().sum().sort_values(ascending=False) / len(data_copy) * 100
     print(na_vals)
-    imputed_cols = ["SATVerbal", "SATMath", "SATWriting", "ACTComposite"]
-    data_copy[imputed_cols] = IterativeImputer(max_iter=10, sample_posterior=True).fit_transform(data_copy[imputed_cols])
+    #imputed_cols = ["SATVerbal", "SATMath", "SATWriting", "ACTComposite"]
+    #data_copy[imputed_cols] = IterativeImputer(max_iter=10, sample_posterior=True).fit_transform(data_copy[imputed_cols])
     data_copy.drop(columns=unwanted_cols, inplace=True)
     data_copy.dropna(axis=0, how="any", inplace=True)
 
@@ -75,7 +75,7 @@ def data_engineering(data: pd.DataFrame, desired_stats: list, unwanted_cols: lis
     str_cols = list(data_copy.select_dtypes(include=object).columns)
     data_copy[str_cols] = data_copy[str_cols].apply(LabelEncoder().fit_transform)
 
-    data_copy.to_csv("final_frame_imputed.csv")
+    data_copy.to_csv("final_frame_non_imputed.csv")
     print(data_copy)
 
 
@@ -83,10 +83,10 @@ merging_var = "SubjectI.D."
 choice_data = read_data("SELECT * FROM CHOICE WHERE YEAR==2010", "TFS_CHOICE_2008_2010.db", "choice.csv")
 choice_data.rename(columns={"SUBJID": merging_var}, inplace=True)
 demo_data = read_data("SELECT * FROM DEMOGRAPHICS WHERE Surveyyear == 2010", "DEMOGRAPHICS.db", "demo.csv")
-high_data = read_data("SELECT [SubjectI.D.], SATVerbal, SATMath, SATWriting, ACTComposite FROM 'HIGH SCHOOL' WHERE Surveyyear == 2010",
-                      "HIGH SCHOOL.db", "high_school.csv")
+# high_data = read_data("SELECT [SubjectI.D.], SATVerbal, SATMath, SATWriting, ACTComposite FROM 'HIGH SCHOOL' WHERE Surveyyear == 2010",
+#                       "HIGH SCHOOL.db", "high_school.csv")
 
-merged_data = merge_data([choice_data, demo_data, high_data], merging_var)
+merged_data = merge_data([choice_data, demo_data], merging_var)
 
 unneeded_cols = ["NORMSTAT", "STUDSTAT", "YEAR", "Surveyyear", "Studentshomezip", "AmericanIndian/AlaskaNative",
                  "NativeHawaiian/PacificIslander", "AfricanAmerican/Black", "MexicanAmerican/Chicano/o/x", "PuertoRican",
