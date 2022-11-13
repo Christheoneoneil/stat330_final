@@ -81,6 +81,9 @@ def data_engineering(data: pd.DataFrame, desired_stats: list, unwanted_cols: lis
 
 merging_var = "SubjectI.D."
 choice_data = read_data("SELECT * FROM CHOICE WHERE YEAR==2010", "TFS_CHOICE_2008_2010.db", "choice.csv")
+encode_list = [1, 2, 3, 4]
+unencoded_list = [5, 4, 2, 1]
+choice_data["CHOICE"].replace(unencoded_list, encode_list, inplace=True)
 choice_data.rename(columns={"SUBJID": merging_var}, inplace=True)
 demo_data = read_data("SELECT * FROM DEMOGRAPHICS WHERE Surveyyear == 2010", "DEMOGRAPHICS.db", "demo.csv")
 # high_data = read_data("SELECT [SubjectI.D.], SATVerbal, SATMath, SATWriting, ACTComposite FROM 'HIGH SCHOOL' WHERE Surveyyear == 2010",
