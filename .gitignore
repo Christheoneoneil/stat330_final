@@ -1,5 +1,7 @@
 # ignore data folder
+/build/
 /data/
 /notebooks/__pycache__/
 /notebooks/ideas/
+/notebooks/build/
 /stats/
