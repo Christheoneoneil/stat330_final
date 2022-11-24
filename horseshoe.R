@@ -1,5 +1,6 @@
 library("tidyverse")
 library("brms")
+library("rstanarm")
 remove.packages(c("StanHeaders", "rstan", "cmdstanr"))
 install.packages("rstan", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
 install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOption("repos")))
@@ -10,25 +11,15 @@ for (name in list("imputed", "non_imputed")){
   df <- sample_frac(df, 0.3)
   y <- pull(df, CHOICE)
   x <- select(df, -c(CHOICE, ComparisonGroup3, Studentstatus, Normsstatus, X))
-  D <- ncol(x)
+  x <- as.matrix(x)
+  D <- ncol (x)
   n <- nrow (x)
-  p0 <- 20 # prior guess for the number of relevant variables
-  sigma <- 1 / sqrt (mean(y)*(1 - mean (y))) # pseudo sigma
-  tau0 <- p0 /(D -p0) * sigma / sqrt(n)
-  set_prior(horseshoe(scale_global = tau0))
+  p0 <- 1 # prior guess for the number of relevant variables
+  sigma <- 1 / sqrt(mean(y)*(1-mean(y))) # pseudo sigma
+  tau0 <- p0 /( D - p0 ) * sigma / sqrt ( n )
+  prior_coeff <- hs ( df =1 , global_df =1 , global_scale = tau0 )
   # fit the model
-  fit <- brm(CHOICE ~ ., family = bernoulli(link="logit") , data=data.frame(df), 
-             chains = 2, cores = 7, iter=4000)
+  fit <- stan_glm ( y ~ x , family = binomial () , data = data.frame (I(x),y) ,
+                    prior = prior_coeff, chains = 2, iter=4000, cores=7)
   saveRDS(fit, file=paste(name, ".rds", sep=""))
-  stanplot(fit, 
-           type = "trace")
-  stanplot(Bayes_Model_Binary, 
-           type = "acf_bar")
-  stanplot(Bayes_Model_Binary, 
-           type = "areas",
-           prob = 0.95,
-           transformations = "exp") +
-    geom_vline(xintercept = 1, color = "grey")
-  print(summary(fit))
 }
-
