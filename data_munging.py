@@ -63,8 +63,8 @@ def data_engineering(data: pd.DataFrame, desired_stats: list, unwanted_cols: lis
     data_copy = data.copy()
     na_vals = data_copy.isna().sum().sort_values(ascending=False) / len(data_copy) * 100
     print(na_vals)
-    #imputed_cols = ["SATVerbal", "SATMath", "SATWriting", "ACTComposite"]
-    #data_copy[imputed_cols] = IterativeImputer(max_iter=10, sample_posterior=True).fit_transform(data_copy[imputed_cols])
+    imputed_cols = ["SATVerbal", "SATMath", "SATWriting", "ACTComposite"]
+    data_copy[imputed_cols] = IterativeImputer(max_iter=10, sample_posterior=True).fit_transform(data_copy[imputed_cols])
     data_copy.drop(columns=unwanted_cols, inplace=True)
     data_copy.dropna(axis=0, how="any", inplace=True)
 
@@ -75,16 +75,42 @@ def data_engineering(data: pd.DataFrame, desired_stats: list, unwanted_cols: lis
     str_cols = list(data_copy.select_dtypes(include=object).columns)
     data_copy[str_cols] = data_copy[str_cols].apply(LabelEncoder().fit_transform)
 
-    data_copy.to_csv("final_frame_non_imputed.csv")
-    print(data_copy)
+    return data_copy
 
+def prep_data(df: pd.DataFrame, key: str, unwanted_cols: list):
+  """
+  param df: data frame that needs to be formatted
+  key: key value associated with provided dictionary
+  unwanted_cols: columns that are ultimatly not needed for analysis
+  returns: prept data frame for logit regression
+  """
+  from sklearn import preprocessing
+  df_copy = df.copy()
+  unnormed_cols = ["STUDWGT"]
+
+  if key == "imputed":
+    unnormed_cols = ['ACTComposite', 'SATMath', 
+                     'SATVerbal', 'SATWriting'] + unnormed_cols
+    df_copy.drop(columns=["Unnamed: 0.1"], inplace=True)
+
+  normalizer = preprocessing.MinMaxScaler()
+  normed_cols = normalizer.fit_transform(df[unnormed_cols])
+  df_copy[unnormed_cols] = normed_cols
+  df_copy.drop(columns=unwanted_cols, inplace=True)
+
+  recode_vars = ["STRAT", "SELECTIVITY", "DOBYear"]
+  for var in recode_vars:
+    unencoded_list = list(df_copy[var].unique())
+    encode_list = list(range(1, len(unencoded_list)+1))
+    df_copy[var].replace(unencoded_list, encode_list, inplace=True)
+  df_copy.to_csv("imputed.csv")
 
 merging_var = "SubjectI.D."
 choice_data = read_data("SELECT * FROM CHOICE WHERE YEAR==2010", "TFS_CHOICE_2008_2010.db", "choice.csv")
 choice_data.rename(columns={"SUBJID": merging_var}, inplace=True)
 demo_data = read_data("SELECT * FROM DEMOGRAPHICS WHERE Surveyyear == 2010", "DEMOGRAPHICS.db", "demo.csv")
-# high_data = read_data("SELECT [SubjectI.D.], SATVerbal, SATMath, SATWriting, ACTComposite FROM 'HIGH SCHOOL' WHERE Surveyyear == 2010",
-#                       "HIGH SCHOOL.db", "high_school.csv")
+high_data = read_data("SELECT [SubjectI.D.], SATVerbal, SATMath, SATWriting, ACTComposite FROM 'HIGH SCHOOL' WHERE Surveyyear == 2010",
+                       "HIGH SCHOOL.db", "high_school.csv")
 
 merged_data = merge_data([choice_data, demo_data], merging_var)
 
@@ -94,4 +120,4 @@ unneeded_cols = ["NORMSTAT", "STUDSTAT", "YEAR", "Surveyyear", "Studentshomezip"
                   "SurveyType", "Areyouenrolled(orenrolling)asa:", "Seximputed", "InstitutionControl", "InstitutionType",
                  "SubjectI.D."]
 
-data_engineering(merged_data, ["min", "max", "std"], unneeded_cols)
+prep_data(df=data_engineering(merged_data, ["min", "max", "std"], unneeded_cols), key="imputed", unwancted_cols = ["ACERECODE"])
