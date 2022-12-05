@@ -199,14 +199,14 @@ for (name in list("non_imputed")){
   title('Logistic Ridge Regression True versus False Positive Rates\n(Non-Imputed)')
   
   lndf <- data.frame(lasso_imp)
-  sorted_lidf_vals <- lidf[order(lidf$lasso_imp, decreasing = TRUE),]
-  sorted_lidf_name <- data.frame(rownames(lidf))[order(lidf$lasso_imp, decreasing = TRUE),]
-  sorted_lidf <- data.frame(sorted_lidf_name, sorted_lidf_vals)
+  sorted_lndf_vals <- lndf[order(lndf$lasso_imp, decreasing = TRUE),]
+  sorted_lndf_name <- data.frame(rownames(lndf))[order(lndf$lasso_imp, decreasing = TRUE),]
+  sorted_lndf <- data.frame(sorted_lndf_name, sorted_lndf_vals)
   
   rndf <- data.frame(ridge_imp)
-  sorted_ridf_vals <- ridf[order(ridf$ridge_imp, decreasing = TRUE),]
-  sorted_ridf_name <- data.frame(rownames(ridf))[order(ridf$ridge_imp, decreasing = TRUE),]
-  sorted_ridf <- data.frame(sorted_ridf_name, sorted_ridf_vals)
+  sorted_rndf_vals <- rndf[order(rndf$ridge_imp, decreasing = TRUE),]
+  sorted_rndf_name <- data.frame(rownames(rndf))[order(rndf$ridge_imp, decreasing = TRUE),]
+  sorted_rndf <- data.frame(sorted_rndf_name, sorted_rndf_vals)
   
   remove(df, cfit_ridge, cfit_lasso, 
          pred_lasso, pred_ridge, test_x, 
