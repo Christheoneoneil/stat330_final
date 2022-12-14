@@ -13,7 +13,7 @@ varImp <- function(object, lambda = NULL, ...) {
   out
 }
 
-for (name in list("imputed")){
+for (name in list("stat330_final/non_bayes_lasso_ridge/imputed")){
   df <- as_tibble(read.csv(paste(name, ".csv", sep="")))
   
   df$ACCPT1ST <- (ifelse(df$ACCPT1ST == 2, 1, 0))
@@ -113,7 +113,7 @@ for (name in list("imputed")){
          test_y, train_x, train_y)
 }
 
-for (name in list("non_imputed")){
+for (name in list("stat330_final/non_bayes_lasso_ridge/non_imputed")){
   df <- as_tibble(read.csv(paste(name, ".csv", sep="")))
   
   df$ACCPT1ST <- (ifelse(df$ACCPT1ST == 2, 1, 0))
