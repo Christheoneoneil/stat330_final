@@ -6,4 +6,4 @@ analyze_model.R analyzes the rstanarm horseshoe prior logistic model on all of t
 
 data_munging.py reads in the data cleans merges and prepares data for logistic regression. 
 
-horseshoe.R builds and fits a rstanarm model that implements a horseshoe pior logistic regression to the cleaned and subsetted data. 
+horseshoe.R builds and fits a rstanarm model that implements a horseshoe pior logistic regression to the cleaned and subsetted data.
